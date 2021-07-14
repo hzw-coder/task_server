@@ -73,6 +73,17 @@ router.post('/api/login', (req, res) => {
     })()
 })
 
+// 退出登录
+router.post('/api/logout', (req, res) => {
+    // 删除(session)登录状态
+    delete req.session['user_id']
+    delete req.session['img_captcha']
+    res.send({
+        code: '200',
+        msg: '退出登录成功'
+    })
+})
+
 // 提交反馈接口
 router.post('/api/comment', (req, res) => {
     (async function () {
