@@ -69,8 +69,57 @@ async function submitComment(res, user_id, title, description) {
     return result
 }
 
+// 查询分类列表
+async function queryCategory(res) {
+    let result
+    try {
+        const sql = `select * from category`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '查询分类失败'
+        })
+        return
+    }
+    return result
+}
+
+
+// 查询标签列表
+async function queryLabel(res) {
+    let result
+    try {
+        const sql = `select * from label`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '查询标签失败'
+        })
+        return
+    }
+    return result
+}
+
 module.exports = {
     login,
     queryUser,
-    submitComment
+    submitComment,
+    queryCategory,
+    queryLabel
 }

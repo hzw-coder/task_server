@@ -131,6 +131,46 @@ router.post('/api/comment', (req, res) => {
     })()
 })
 
+// 获取分类列表
+router.get('/api/category', (req, res) => {
+    (async function () {
+        let categoryResult = await handleDB.queryCategory(res)
+        if (categoryResult.length) {
+            res.send({
+                msg: '获取分类成功',
+                code: '200',
+                data: categoryResult
+            })
+        } else {
+            res.send({
+                msg: '获取分类失败',
+                code: '401',
+            })
+            return
+        }
+    })()
+})
+
+// 获取标签列表
+router.get('/api/label', (req, res) => {
+    (async function () {
+        let labelResult = await handleDB.queryLabel(res)
+        if (labelResult.length) {
+            res.send({
+                msg: '获取标签成功',
+                code: '200',
+                data: labelResult
+            })
+        } else {
+            res.send({
+                msg: '获取标签失败',
+                code: '401',
+            })
+            return
+        }
+    })()
+})
+
 
 // 生成token
 // router.get('/passport/token', (req, res) => {
