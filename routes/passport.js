@@ -55,6 +55,8 @@ router.post('/api/login', (req, res) => {
                 })
                 return
             } else { //正确
+                // 保存当前登录用户的id
+                req.session['user_id'] = loginResult[0].id
                 // 生成token
                 let token = jwt.sign({
                     username: username
@@ -68,6 +70,53 @@ router.post('/api/login', (req, res) => {
                 })
             }
         }
+    })()
+})
+
+// 提交反馈接口
+router.post('/api/comment', (req, res) => {
+    (async function () {
+        let {
+            title,
+            description
+        } = req.body
+        if (!title) {
+            res.send({
+                msg: '请填写标题',
+                code: '401',
+            })
+            return
+        }
+        if (!description) {
+            res.send({
+                msg: '请填写内容',
+                code: '401'
+            })
+            return
+        }
+        // 从session中获取当前用户id
+        let user_id = req.session['user_id']
+        if (!user_id) {
+            res.send({
+                msg: '用户未登录，请登录',
+                code: '401'
+            })
+            return
+        }
+        // 数据库操作
+        let commentResult = await handleDB.submitComment(res, user_id, title, description)
+        if (!commentResult.insertId) {
+            res.send({
+                msg: '提交反馈出错',
+                code: '401'
+            })
+            return
+        };
+        res.send({
+            msg: '提交反馈成功',
+            code: '200'
+        })
+
     })()
 })
 

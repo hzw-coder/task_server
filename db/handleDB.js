@@ -16,7 +16,7 @@ async function login(res, username, password) {
     } catch (error) {
         console.log(error);
         res.send({
-            errmsg: '登录失败'
+            msg: '登录失败'
         })
         return
     }
@@ -39,7 +39,30 @@ async function queryUser(res, username) {
     } catch (error) {
         console.log(error);
         res.send({
-            errmsg: '查询用户失败'
+            msg: '查询用户失败'
+        })
+        return
+    }
+    return result
+}
+
+// 提交反馈
+async function submitComment(res, user_id, title, description) {
+    let result
+    try {
+        const sql = `insert into feedback(user_id, title, description) values('${user_id}','${title}','${description}')`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '提交反馈失败'
         })
         return
     }
@@ -48,5 +71,6 @@ async function queryUser(res, username) {
 
 module.exports = {
     login,
-    queryUser
+    queryUser,
+    submitComment
 }
