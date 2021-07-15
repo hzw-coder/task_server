@@ -131,19 +131,61 @@ router.post('/api/comment', (req, res) => {
     })()
 })
 
-// 获取分类列表
+router.post('/api/addtask', (req, res) => {
+    (async function () {
+        let {
+            category_id,
+            name,
+            description,
+            label_id
+        } = req.body
+        if (!category_id || !name || !description || !label_id) {
+            res.send({
+                msg: '请填写完整内容',
+                code: '401'
+            })
+            return
+        }
+        let user_id = req.session['user_id']
+        // 添加任务
+        let addTaskResult = await handleDB.submitTask(res, user_id, category_id, name, description)
+        if (!addTaskResult.insertId) {
+            res.send({
+                msg: '添加任务出错',
+                code: '401'
+            })
+            return
+        }
+        // 向task_label添加task_id
+        let task_id = addTaskResult.insertId
+        let tasklabelResult = await handleDB.addTaskLabel(res, task_id, label_id)
+        if (!tasklabelResult.insertId) {
+            res.send({
+                msg: '添加出错',
+                code: '401'
+            })
+            return
+        }
+        res.send({
+            msg: '添加任务成功',
+            code: '200'
+        })
+    })()
+})
+
+// 获取等级列表
 router.get('/api/category', (req, res) => {
     (async function () {
         let categoryResult = await handleDB.queryCategory(res)
         if (categoryResult.length) {
             res.send({
-                msg: '获取分类成功',
+                msg: '获取等级成功',
                 code: '200',
                 data: categoryResult
             })
         } else {
             res.send({
-                msg: '获取分类失败',
+                msg: '获取等级失败',
                 code: '401',
             })
             return
