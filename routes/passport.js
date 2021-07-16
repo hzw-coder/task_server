@@ -130,7 +130,7 @@ router.post('/api/comment', (req, res) => {
 
     })()
 })
-
+// 添加任务
 router.post('/api/addtask', (req, res) => {
     (async function () {
         let {
@@ -227,13 +227,71 @@ router.get('/api/label_task', (req, res) => {
 // 获取等级-任务数列表数据
 router.get('/api/category_task', (req, res) => {
     (async function () {
-        let result = await handleDB.queryCategory_Task(res)
-
-        console.log(result);
-
+        let {
+            curPage,
+            pageSize
+        } = req.query
+        // console.log(typeof curPage, typeof pageSize);
+        let categoryTaskResult = await handleDB.queryCategory_Task(res, curPage, pageSize)
+        let categoryResult = await handleDB.queryCategory(res)
+        let total = categoryResult.length
+        if (categoryTaskResult.length < 0 || total < 0) {
+            res.send({
+                code: '402',
+                msg: '获取数据失败'
+            })
+            return
+        }
+        res.send({
+            code: '200',
+            msg: '获取数据成功',
+            data: categoryTaskResult,
+            total: total
+        })
     })()
 })
 
+// 添加分类(等级)
+router.post('/api/addcategory', (req, res) => {
+    (async function () {
+        let {
+            name
+        } = req.body
+        if (!name) {
+            res.send({
+                code: '402',
+                msg: '请输入内容'
+            })
+            return
+        }
+        // 根据名称查询
+        let hasResult = await handleDB.queryCategoryByName(res, name)
+        if (hasResult.length > 0) {
+            // 存在则不添加
+            res.send({
+                msg: '等级已存在,请重新添加',
+                code: '401'
+            })
+            return
+        } else {
+            let user_id = req.session['user_id']
+            // name不存在，则可以添加
+            let insertResult = await handleDB.addCategory(res, user_id, name)
+            if (insertResult.insertId) {
+                res.send({
+                    code: '200',
+                    msg: '添加成功'
+                })
+            } else {
+                res.send({
+                    code: '403',
+                    msg: '添加失败'
+                })
+                return
+            }
+        }
+    })()
+})
 
 // 生成token
 // router.get('/passport/token', (req, res) => {

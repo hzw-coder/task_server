@@ -69,11 +69,57 @@ async function submitComment(res, user_id, title, description) {
     return result
 }
 
+// 添加等级分类
+async function addCategory(res, user_id, name) {
+    let result
+    try {
+        const sql = `insert into category(user_id, name) values('${user_id}','${name}')`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作数据库失败'
+        })
+        return
+    }
+    return result
+}
+
 // 查询分类列表
 async function queryCategory(res) {
     let result
     try {
         const sql = `select * from category`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '查询分类失败'
+        })
+        return
+    }
+    return result
+}
+
+// 根据名称查询分类
+async function queryCategoryByName(res, name) {
+    let result
+    try {
+        const sql = `select * from category where name='${name}'`
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
                 if (err) {
@@ -169,10 +215,11 @@ async function queryLabel_Task(res, curPage, pageSize) {
      */
     let result
     try {
+        let starIndex = (curPage - 1) * pageSize;
         const sql = `select label.id,label.name,
         ( select count(task_label.label_id) 
         from task_label where label.id=task_label.label_id ) as countnum 
-        from label limit ${curPage},${pageSize}`
+        from label limit limit ${starIndex},${pageSize}`
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
                 if (err) {
@@ -199,10 +246,11 @@ async function queryCategory_Task(res, curPage, pageSize) {
      */
     let result
     try {
+        let starIndex = (curPage - 1) * pageSize;
         const sql = `select category.id,category.name,
         ( select count(task.category_id) 
         from task where category.id=task.category_id ) as countnum 
-        from category limit ${curPage},${pageSize}`
+        from category limit ${starIndex},${pageSize}`
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
                 if (err) {
@@ -230,5 +278,7 @@ module.exports = {
     submitTask,
     addTaskLabel,
     queryLabel_Task,
-    queryCategory_Task
+    queryCategory_Task,
+    queryCategoryByName,
+    addCategory
 }
