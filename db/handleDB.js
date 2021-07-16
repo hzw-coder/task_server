@@ -161,6 +161,66 @@ async function addTaskLabel(res, task_id, label_id) {
     return result
 }
 
+// 查询标签名及任务数
+async function queryLabel_Task(res, curPage, pageSize) {
+    /**
+     * curPage是当前第几页；
+     * pageSize是一页多少条记录
+     */
+    let result
+    try {
+        const sql = `select label.id,label.name,
+        ( select count(task_label.label_id) 
+        from task_label where label.id=task_label.label_id ) as countnum 
+        from label limit ${curPage},${pageSize}`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '查询失败'
+        })
+        return
+    }
+    return result
+}
+
+// 查询等级名及任务数
+async function queryCategory_Task(res, curPage, pageSize) {
+    /**
+     * curPage是当前第几页；
+     * pageSize是一页多少条记录
+     */
+    let result
+    try {
+        const sql = `select category.id,category.name,
+        ( select count(task.category_id) 
+        from task where category.id=task.category_id ) as countnum 
+        from category limit ${curPage},${pageSize}`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '查询失败'
+        })
+        return
+    }
+    return result
+}
+
 module.exports = {
     login,
     queryUser,
@@ -168,5 +228,7 @@ module.exports = {
     queryCategory,
     queryLabel,
     submitTask,
-    addTaskLabel
+    addTaskLabel,
+    queryLabel_Task,
+    queryCategory_Task
 }

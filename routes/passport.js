@@ -213,6 +213,27 @@ router.get('/api/label', (req, res) => {
     })()
 })
 
+// 获取标签-任务数列表数据
+router.get('/api/label_task', (req, res) => {
+    (async function () {
+        let result = await handleDB.queryLabel_Task(res)
+
+        console.log(result);
+
+    })()
+})
+
+
+// 获取等级-任务数列表数据
+router.get('/api/category_task', (req, res) => {
+    (async function () {
+        let result = await handleDB.queryCategory_Task(res)
+
+        console.log(result);
+
+    })()
+})
+
 
 // 生成token
 // router.get('/passport/token', (req, res) => {
