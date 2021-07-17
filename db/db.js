@@ -2,7 +2,7 @@ const mysql = require('mysql')
 let pool = mysql.createPool({
     host: 'localhost',
     user: 'root',
-    password: '1234',
+    password: '123456',
     database: 'task'
 })
 

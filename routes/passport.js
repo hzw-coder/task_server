@@ -292,6 +292,29 @@ router.post('/api/addcategory', (req, res) => {
         }
     })()
 })
+// 删除等级
+router.delete('/api/category', (req, res) => {
+    (async function () {
+        let {
+            id
+        } = req.body
+
+        // 删除category
+        let deleteResult = await handleDB.deleteCategoryById(res, id)
+        if (deleteResult.affectedRows > 0) {
+            // 成功
+            res.send({
+                code: '200',
+                msg: '删除成功'
+            })
+        } else {
+            res.send({
+                code: '401',
+                msg: '删除失败'
+            })
+        }
+    })()
+})
 
 // 生成token
 // router.get('/passport/token', (req, res) => {

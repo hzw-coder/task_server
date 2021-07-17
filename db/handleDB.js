@@ -269,6 +269,29 @@ async function queryCategory_Task(res, curPage, pageSize) {
     return result
 }
 
+// 根据id删除分类
+async function deleteCategoryById(res, id) {
+    let result
+    try {
+        const sql = `delete from category where id='${id}'`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作失败'
+        })
+        return
+    }
+    return result
+}
+
 module.exports = {
     login,
     queryUser,
@@ -280,5 +303,6 @@ module.exports = {
     queryLabel_Task,
     queryCategory_Task,
     queryCategoryByName,
-    addCategory
+    addCategory,
+    deleteCategoryById
 }
