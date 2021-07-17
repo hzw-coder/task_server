@@ -291,6 +291,51 @@ async function deleteCategoryById(res, id) {
     }
     return result
 }
+// 根据id查询分类
+async function queryCategoryById(res, id) {
+    let result
+    try {
+        const sql = `select * from category where id='${id}'`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作失败'
+        })
+        return
+    }
+    return result
+}
+
+// 修改单个分类
+async function updateCategoryById(res, id, name) {
+    let result
+    try {
+        const sql = `update category set name='${name}' where id='${id}'`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作失败'
+        })
+        return
+    }
+    return result
+}
 
 module.exports = {
     login,
@@ -304,5 +349,7 @@ module.exports = {
     queryCategory_Task,
     queryCategoryByName,
     addCategory,
-    deleteCategoryById
+    deleteCategoryById,
+    queryCategoryById,
+    updateCategoryById
 }

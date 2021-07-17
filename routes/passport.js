@@ -275,6 +275,13 @@ router.post('/api/addcategory', (req, res) => {
             return
         } else {
             let user_id = req.session['user_id']
+            if (!user_id) {
+                res.send({
+                    code: '401',
+                    msg: '未登录,请登录'
+                })
+                return
+            }
             // name不存在，则可以添加
             let insertResult = await handleDB.addCategory(res, user_id, name)
             if (insertResult.insertId) {
@@ -312,6 +319,60 @@ router.delete('/api/category', (req, res) => {
                 code: '401',
                 msg: '删除失败'
             })
+        }
+    })()
+})
+
+// 获取单个分类信息
+router.get('/api/singlecategory', (req, res) => {
+    (async function () {
+        let {
+            id
+        } = req.query
+        let singleResult = await handleDB.queryCategoryById(res, id)
+        if (singleResult.length > 0) {
+            res.send({
+                code: '200',
+                msg: '获取成功',
+                data: singleResult
+            })
+        }
+    })()
+})
+
+// 提交修改分类
+router.post('/api/editcategory', (req, res) => {
+    (async function () {
+        let {
+            id,
+            name
+        } = req.body
+        // 根据名称查询
+        let hasResult = await handleDB.queryCategoryByName(res, name)
+        if (hasResult.length > 0) {
+            // 存在，无法修改
+            res.send({
+                msg: '等级已存在,无法修改',
+                code: '401'
+            })
+            return
+        } else {
+            // 不存在，可以修改
+            let updatecateResult = await handleDB.updateCategoryById(res, id, name)
+            if (updatecateResult.affectedRows > 0) {
+                // 成功
+                res.send({
+                    code: '200',
+                    msg: '修改成功'
+                })
+            } else {
+                // 失败
+                res.send({
+                    code: '401',
+                    msg: '修改失败'
+                })
+                return
+            }
         }
     })()
 })
