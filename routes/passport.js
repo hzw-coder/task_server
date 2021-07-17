@@ -216,10 +216,27 @@ router.get('/api/label', (req, res) => {
 // 获取标签-任务数列表数据
 router.get('/api/label_task', (req, res) => {
     (async function () {
-        let result = await handleDB.queryLabel_Task(res)
-
-        console.log(result);
-
+        let {
+            curPage,
+            pageSize
+        } = req.query
+        // console.log(typeof curPage, typeof pageSize);
+        let categoryTaskResult = await handleDB.queryLabel_Task(res, curPage, pageSize)
+        let categoryResult = await handleDB.queryLabel(res)
+        let total = categoryResult.length
+        if (categoryTaskResult.length < 0 || total < 0) {
+            res.send({
+                code: '402',
+                msg: '获取数据失败'
+            })
+            return
+        }
+        res.send({
+            code: '200',
+            msg: '获取数据成功',
+            data: categoryTaskResult,
+            total: total
+        })
     })()
 })
 
@@ -299,6 +316,56 @@ router.post('/api/addcategory', (req, res) => {
         }
     })()
 })
+
+// 添加标签
+router.post('/api/addlabel', (req, res) => {
+    (async function () {
+        let {
+            name
+        } = req.body
+        if (!name) {
+            res.send({
+                code: '402',
+                msg: '请输入内容'
+            })
+            return
+        }
+        // 根据名称查询
+        let hasResult = await handleDB.queryLabelByName(res, name)
+        if (hasResult.length > 0) {
+            // 存在则不添加
+            res.send({
+                msg: '标签已存在,请重新添加',
+                code: '401'
+            })
+            return
+        } else {
+            let user_id = req.session['user_id']
+            if (!user_id) {
+                res.send({
+                    code: '401',
+                    msg: '未登录,请登录'
+                })
+                return
+            }
+            // name不存在，则可以添加
+            let insertResult = await handleDB.addLabel(res, user_id, name)
+            if (insertResult.insertId) {
+                res.send({
+                    code: '200',
+                    msg: '添加成功'
+                })
+            } else {
+                res.send({
+                    code: '403',
+                    msg: '添加失败'
+                })
+                return
+            }
+        }
+    })()
+})
+
 // 删除等级
 router.delete('/api/category', (req, res) => {
     (async function () {
@@ -308,6 +375,29 @@ router.delete('/api/category', (req, res) => {
 
         // 删除category
         let deleteResult = await handleDB.deleteCategoryById(res, id)
+        if (deleteResult.affectedRows > 0) {
+            // 成功
+            res.send({
+                code: '200',
+                msg: '删除成功'
+            })
+        } else {
+            res.send({
+                code: '401',
+                msg: '删除失败'
+            })
+        }
+    })()
+})
+// 删除标签
+router.delete('/api/label', (req, res) => {
+    (async function () {
+        let {
+            id
+        } = req.body
+
+        // 删除category
+        let deleteResult = await handleDB.deleteLabelById(res, id)
         if (deleteResult.affectedRows > 0) {
             // 成功
             res.send({
@@ -340,6 +430,23 @@ router.get('/api/singlecategory', (req, res) => {
     })()
 })
 
+// 获取单个标签信息
+router.get('/api/singlelabel', (req, res) => {
+    (async function () {
+        let {
+            id
+        } = req.query
+        let singleResult = await handleDB.queryLabelById(res, id)
+        if (singleResult.length > 0) {
+            res.send({
+                code: '200',
+                msg: '获取成功',
+                data: singleResult
+            })
+        }
+    })()
+})
+
 // 提交修改分类
 router.post('/api/editcategory', (req, res) => {
     (async function () {
@@ -359,6 +466,43 @@ router.post('/api/editcategory', (req, res) => {
         } else {
             // 不存在，可以修改
             let updatecateResult = await handleDB.updateCategoryById(res, id, name)
+            if (updatecateResult.affectedRows > 0) {
+                // 成功
+                res.send({
+                    code: '200',
+                    msg: '修改成功'
+                })
+            } else {
+                // 失败
+                res.send({
+                    code: '401',
+                    msg: '修改失败'
+                })
+                return
+            }
+        }
+    })()
+})
+
+// 提交修改标签
+router.post('/api/editlabel', (req, res) => {
+    (async function () {
+        let {
+            id,
+            name
+        } = req.body
+        // 根据名称查询
+        let hasResult = await handleDB.queryLabelByName(res, name)
+        if (hasResult.length > 0) {
+            // 存在，无法修改
+            res.send({
+                msg: '标签已存在,无法修改',
+                code: '401'
+            })
+            return
+        } else {
+            // 不存在，可以修改
+            let updatecateResult = await handleDB.updateLabelById(res, id, name)
             if (updatecateResult.affectedRows > 0) {
                 // 成功
                 res.send({

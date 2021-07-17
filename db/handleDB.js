@@ -92,6 +92,29 @@ async function addCategory(res, user_id, name) {
     return result
 }
 
+// 添加标签
+async function addLabel(res, user_id, name) {
+    let result
+    try {
+        const sql = `insert into label(user_id, name) values('${user_id}','${name}')`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作数据库失败'
+        })
+        return
+    }
+    return result
+}
+
 // 查询分类列表
 async function queryCategory(res) {
     let result
@@ -138,6 +161,28 @@ async function queryCategoryByName(res, name) {
     return result
 }
 
+// 根据名称查询标签
+async function queryLabelByName(res, name) {
+    let result
+    try {
+        const sql = `select * from label where name='${name}'`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '查询标签失败'
+        })
+        return
+    }
+    return result
+}
 
 // 查询标签列表
 async function queryLabel(res) {
@@ -208,18 +253,18 @@ async function addTaskLabel(res, task_id, label_id) {
 }
 
 // 查询标签名及任务数
+/**
+ * curPage是当前第几页；
+ * pageSize是一页多少条记录
+ */
 async function queryLabel_Task(res, curPage, pageSize) {
-    /**
-     * curPage是当前第几页；
-     * pageSize是一页多少条记录
-     */
     let result
     try {
         let starIndex = (curPage - 1) * pageSize;
         const sql = `select label.id,label.name,
         ( select count(task_label.label_id) 
         from task_label where label.id=task_label.label_id ) as countnum 
-        from label limit limit ${starIndex},${pageSize}`
+        from label limit ${starIndex},${pageSize}`
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
                 if (err) {
@@ -239,11 +284,11 @@ async function queryLabel_Task(res, curPage, pageSize) {
 }
 
 // 查询等级名及任务数
+/**
+ * curPage是当前第几页；
+ * pageSize是一页多少条记录
+ */
 async function queryCategory_Task(res, curPage, pageSize) {
-    /**
-     * curPage是当前第几页；
-     * pageSize是一页多少条记录
-     */
     let result
     try {
         let starIndex = (curPage - 1) * pageSize;
@@ -291,11 +336,57 @@ async function deleteCategoryById(res, id) {
     }
     return result
 }
+
+// 根据id删除标签
+async function deleteLabelById(res, id) {
+    let result
+    try {
+        const sql = `delete from label where id='${id}'`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作失败'
+        })
+        return
+    }
+    return result
+}
+
 // 根据id查询分类
 async function queryCategoryById(res, id) {
     let result
     try {
         const sql = `select * from category where id='${id}'`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作失败'
+        })
+        return
+    }
+    return result
+}
+// 根据id查询标签
+async function queryLabelById(res, id) {
+    let result
+    try {
+        const sql = `select * from label where id='${id}'`
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
                 if (err) {
@@ -337,6 +428,29 @@ async function updateCategoryById(res, id, name) {
     return result
 }
 
+// 修改单个标签
+async function updateLabelById(res, id, name) {
+    let result
+    try {
+        const sql = `update label set name='${name}' where id='${id}'`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作失败'
+        })
+        return
+    }
+    return result
+}
+
 module.exports = {
     login,
     queryUser,
@@ -348,8 +462,13 @@ module.exports = {
     queryLabel_Task,
     queryCategory_Task,
     queryCategoryByName,
+    queryLabelByName,
     addCategory,
+    addLabel,
     deleteCategoryById,
+    deleteLabelById,
     queryCategoryById,
-    updateCategoryById
+    updateCategoryById,
+    updateLabelById,
+    queryLabelById
 }
