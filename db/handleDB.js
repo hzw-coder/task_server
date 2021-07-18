@@ -470,5 +470,5 @@ module.exports = {
     queryCategoryById,
     updateCategoryById,
     updateLabelById,
-    queryLabelById
+    queryLabelById,
 }
