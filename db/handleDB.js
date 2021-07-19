@@ -451,6 +451,35 @@ async function updateLabelById(res, id, name) {
     return result
 }
 
+// 模糊查询任务
+async function queryTask(res, name, label_id) {
+    let result
+    try {
+
+        const sql = `select * from task
+                    where concat(IFNULL(name,''),
+                    IFNULL(id,'')
+                    )
+                    like concat('%${name}%', in (select task_id from task_label where label_id='${label_id}'))`
+
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作失败'
+        })
+        return
+    }
+    return result
+}
+
 module.exports = {
     login,
     queryUser,
@@ -471,4 +500,5 @@ module.exports = {
     updateCategoryById,
     updateLabelById,
     queryLabelById,
+    queryTask
 }
