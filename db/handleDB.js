@@ -452,15 +452,26 @@ async function updateLabelById(res, id, name) {
 }
 
 // 模糊查询任务
-async function queryTask(res, name, label_id) {
+async function queryTask(res, name, category_id, label_id) {
     let result
+    let sql
     try {
+        /*
+        if (label_id == '') {
+            sql = `select * from task where concat(IFNULL(name,''),
+                IFNULL(category_id,''))
+                like concat('%${name}%','${category_id}')`
+        } else {
+            sql = `select t.* from task t,task_label tl 
+                where t.id=tl.task_id and tl.label_id='${label_id}'`
+        }
+        */
 
-        const sql = `select * from task
-                    where concat(IFNULL(name,''),
-                    IFNULL(id,'')
-                    )
-                    like concat('%${name}%', in (select task_id from task_label where label_id='${label_id}'))`
+        sql = `select distinct t.* from task t left join task_label tl on
+             t.id=tl.task_id
+             where concat(IFNULL(t.name,''),IFNULL(t.category_id,''),IFNULL(tl.label_id,''))
+             like concat('%${name}%','${category_id}','${label_id}')`
+
 
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {

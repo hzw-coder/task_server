@@ -524,7 +524,7 @@ router.post('/api/editlabel', (req, res) => {
 // 模糊查询接口
 router.get('/api/task', (req, res) => {
     (async function () {
-        let result = await handleDB.queryTask(res, '', '6')
+        let result = await handleDB.queryTask(res, '', '', '6')
         res.send(result);
     })()
 })
