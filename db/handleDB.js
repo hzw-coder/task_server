@@ -452,15 +452,123 @@ async function updateLabelById(res, id, name) {
 }
 
 // 模糊查询任务
-async function queryTask(res, name, category_id, label_id) {
+async function queryTask(res, name, category_id, label_id, curPage, pageSize) {
+    let result
+    let sql
+    try {
+        /*
+        if (label_id == '') {
+            sql = `select * from task where concat(IFNULL(name,''),
+                IFNULL(category_id,''))
+                like concat('%${name}%','${category_id}')`
+        } else {
+            sql = `select t.* from task t,task_label tl 
+                where t.id=tl.task_id and tl.label_id='${label_id}'`
+        }
+        */
+        let starIndex = (curPage - 1) * pageSize;
+        sql = `select distinct t.* from task t left join task_label tl on
+             t.id=tl.task_id
+             where concat(IFNULL(t.name,''),IFNULL(t.category_id,''),IFNULL(tl.label_id,''))
+             like concat('%${name}%','${category_id}','${label_id}')
+             and t.run=1 limit ${starIndex},${pageSize}`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作失败'
+        })
+        return
+    }
+    return result
+}
+
+// 查询任务总数
+async function queryTaskCount(res, name, category_id, label_id) {
+    let result
+    let sql
+    try {
+        sql = `select distinct t.* from task t left join task_label tl on
+             t.id=tl.task_id
+             where concat(IFNULL(t.name,''),IFNULL(t.category_id,''),IFNULL(tl.label_id,''))
+             like concat('%${name}%','${category_id}','${label_id}')
+             and t.run=1`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作失败'
+        })
+        return
+    }
+    return result
+}
+
+// 删除单个任务
+async function deleteTaskById(res, id) {
     let result
     try {
-        const sql = `select * from task
-                    where concat(IFNULL(name,''),IFNULL(category_id,''),
-                    IFNULL(id,''))
-                    like concat('%${name}%','${category_id}')
-                    `
-        // and id in (select task_id from task_label where label_id='${label_id}')
+        const sql = `update task set run=0 where id='${id}'`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作失败'
+        })
+        return
+    }
+    return result
+}
+
+// 根据id查询任务
+async function queryTaskById(res, id) {
+    let result
+    try {
+        const sql = `select * from task where id='${id}'`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作失败'
+        })
+        return
+    }
+    return result
+}
+
+// 修改单个任务
+async function updateTaskById(res, id, name, description) {
+    let result
+    try {
+        const sql = `update task set name='${name}',description='${description}' where id='${id}'`
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
                 if (err) {
@@ -499,5 +607,9 @@ module.exports = {
     updateCategoryById,
     updateLabelById,
     queryLabelById,
-    queryTask
+    queryTask,
+    queryTaskCount,
+    deleteTaskById,
+    queryTaskById,
+    updateTaskById
 }

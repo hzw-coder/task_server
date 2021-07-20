@@ -429,6 +429,22 @@ router.get('/api/singlecategory', (req, res) => {
         }
     })()
 })
+// 获取单个任务信息
+router.get('/api/singletask', (req, res) => {
+    (async function () {
+        let {
+            id
+        } = req.query
+        let singleResult = await handleDB.queryTaskById(res, id)
+        if (singleResult.length > 0) {
+            res.send({
+                code: '200',
+                msg: '获取成功',
+                data: singleResult
+            })
+        }
+    })()
+})
 
 // 获取单个标签信息
 router.get('/api/singlelabel', (req, res) => {
@@ -524,8 +540,77 @@ router.post('/api/editlabel', (req, res) => {
 // 模糊查询接口
 router.get('/api/task', (req, res) => {
     (async function () {
-        let result = await handleDB.queryTask(res, '狗', '1', '')
-        res.send(result);
+        let {
+            name,
+            category_id,
+            label_id,
+            curPage,
+            pageSize
+        } = req.query
+        let taskResult = await handleDB.queryTask(res, name, category_id, label_id, curPage, pageSize)
+        let taskNumResult = await handleDB.queryTaskCount(res, name, category_id, label_id)
+        if (taskResult.length < 0) {
+            res.send({
+                code: '402',
+                msg: '暂无数据'
+            })
+            return
+        }
+        res.send({
+            code: '200',
+            msg: '获取数据成功',
+            data: taskResult,
+            total: taskNumResult.length
+        })
+    })()
+})
+
+// 删除任务接口
+router.delete('/api/task', (req, res) => {
+    (async function () {
+        let {
+            id
+        } = req.body
+        let deleteTaskResult = await handleDB.deleteTaskById(res, id)
+        if (deleteTaskResult.affectedRows > 0) {
+            // 成功
+            res.send({
+                code: '200',
+                msg: '删除成功'
+            })
+        } else {
+            res.send({
+                code: '401',
+                msg: '删除失败'
+            })
+        }
+    })()
+})
+
+// 提交修改任务
+router.post('/api/edittask', (req, res) => {
+    (async function () {
+        let {
+            id,
+            name,
+            description
+        } = req.body
+        let updatecateResult = await handleDB.updateTaskById(res, id, name, description)
+        if (updatecateResult.affectedRows > 0) {
+            // 成功
+            res.send({
+                code: '200',
+                msg: '修改成功'
+            })
+        } else {
+            // 失败
+            res.send({
+                code: '401',
+                msg: '修改失败'
+            })
+            return
+        }
+
     })()
 })
 
