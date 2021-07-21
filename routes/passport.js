@@ -622,6 +622,14 @@ router.post('/api/edittask', (req, res) => {
     })()
 })
 
+// 数量统计
+router.get('/api/data', (req, res) => {
+    (async function () {
+        let result = await handleDB.calculaLatelyAweek(res)
+        res.send(result)
+    })()
+})
+
 // 生成token
 // router.get('/passport/token', (req, res) => {
 //     // 生成token
