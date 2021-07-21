@@ -262,8 +262,9 @@ async function queryLabel_Task(res, curPage, pageSize) {
     try {
         let starIndex = (curPage - 1) * pageSize;
         const sql = `select label.id,label.name,
-        ( select count(task_label.label_id) 
-        from task_label where label.id=task_label.label_id ) as countnum 
+        ( select count(distinct task.id) from task
+        left join task_label on task.id=task_label.task_id
+        where task.run=1 and task_label.label_id=label.id) as countnum 
         from label limit ${starIndex},${pageSize}`
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
@@ -294,7 +295,7 @@ async function queryCategory_Task(res, curPage, pageSize) {
         let starIndex = (curPage - 1) * pageSize;
         const sql = `select category.id,category.name,
         ( select count(task.category_id) 
-        from task where category.id=task.category_id ) as countnum 
+        from task where run=1 and category.id=task.category_id ) as countnum 
         from category limit ${starIndex},${pageSize}`
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
