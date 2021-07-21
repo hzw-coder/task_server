@@ -47,10 +47,10 @@ async function queryUser(res, username) {
 }
 
 // 提交反馈
-async function submitComment(res, user_id, title, description) {
+async function submitComment(res, user_id, title, description, create_time) {
     let result
     try {
-        const sql = `insert into feedback(user_id, title, description) values('${user_id}','${title}','${description}')`
+        const sql = `insert into feedback(user_id, title, description,create_time) values('${user_id}','${title}','${description}','${create_time}')`
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
                 if (err) {
@@ -70,10 +70,10 @@ async function submitComment(res, user_id, title, description) {
 }
 
 // 添加等级分类
-async function addCategory(res, user_id, name) {
+async function addCategory(res, user_id, name, create_time) {
     let result
     try {
-        const sql = `insert into category(user_id, name) values('${user_id}','${name}')`
+        const sql = `insert into category(user_id, name,create_time) values('${user_id}','${name}','${create_time}')`
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
                 if (err) {
@@ -93,10 +93,10 @@ async function addCategory(res, user_id, name) {
 }
 
 // 添加标签
-async function addLabel(res, user_id, name) {
+async function addLabel(res, user_id, name, create_time) {
     let result
     try {
-        const sql = `insert into label(user_id, name) values('${user_id}','${name}')`
+        const sql = `insert into label(user_id, name,create_time) values('${user_id}','${name}','${create_time}')`
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
                 if (err) {
@@ -207,10 +207,10 @@ async function queryLabel(res) {
     return result
 }
 // 添加任务
-async function submitTask(res, user_id, category_id, name, description) {
+async function submitTask(res, user_id, category_id, name, description, create_time) {
     let result
     try {
-        const sql = `insert into task(user_id, category_id, name, description) values('${user_id}','${category_id}','${name}','${description}')`
+        const sql = `insert into task(user_id, category_id, name, description,create_time) values('${user_id}','${category_id}','${name}','${description}','${create_time}')`
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
                 if (err) {
@@ -230,10 +230,10 @@ async function submitTask(res, user_id, category_id, name, description) {
 }
 
 // 添加任务_标签
-async function addTaskLabel(res, task_id, label_id) {
+async function addTaskLabel(res, task_id, label_id, create_time) {
     let result
     try {
-        const sql = `insert into task_label(task_id, label_id) values('${task_id}','${label_id}')`
+        const sql = `insert into task_label(task_id, label_id,create_time) values('${task_id}','${label_id}','${create_time}')`
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
                 if (err) {
@@ -406,10 +406,10 @@ async function queryLabelById(res, id) {
 }
 
 // 修改单个分类
-async function updateCategoryById(res, id, name) {
+async function updateCategoryById(res, id, name, update_time) {
     let result
     try {
-        const sql = `update category set name='${name}' where id='${id}'`
+        const sql = `update category set name='${name}',update_time='${update_time}' where id='${id}'`
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
                 if (err) {
@@ -429,10 +429,10 @@ async function updateCategoryById(res, id, name) {
 }
 
 // 修改单个标签
-async function updateLabelById(res, id, name) {
+async function updateLabelById(res, id, name, update_time) {
     let result
     try {
-        const sql = `update label set name='${name}' where id='${id}'`
+        const sql = `update label set name='${name}',update_time='${update_time}' where id='${id}'`
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
                 if (err) {
@@ -519,10 +519,10 @@ async function queryTaskCount(res, name, category_id, label_id) {
 }
 
 // 删除单个任务
-async function deleteTaskById(res, id) {
+async function deleteTaskById(res, id, update_time) {
     let result
     try {
-        const sql = `update task set run=0 where id='${id}'`
+        const sql = `update task set run=0,update_time='${update_time}' where id='${id}'`
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
                 if (err) {
@@ -565,10 +565,10 @@ async function queryTaskById(res, id) {
 }
 
 // 修改单个任务
-async function updateTaskById(res, id, name, description) {
+async function updateTaskById(res, id, name, description, update_time) {
     let result
     try {
-        const sql = `update task set name='${name}',description='${description}' where id='${id}'`
+        const sql = `update task set name='${name}',description='${description}',update_time='${update_time}' where id='${id}'`
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
                 if (err) {

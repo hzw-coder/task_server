@@ -114,8 +114,9 @@ router.post('/api/comment', (req, res) => {
             })
             return
         }
+        let create_time = new Date().toLocaleString()
         // 数据库操作
-        let commentResult = await handleDB.submitComment(res, user_id, title, description)
+        let commentResult = await handleDB.submitComment(res, user_id, title, description, create_time)
         if (!commentResult.insertId) {
             res.send({
                 msg: '提交反馈出错',
@@ -147,8 +148,9 @@ router.post('/api/addtask', (req, res) => {
             return
         }
         let user_id = req.session['user_id']
+        let create_time = new Date().toLocaleString()
         // 添加任务
-        let addTaskResult = await handleDB.submitTask(res, user_id, category_id, name, description)
+        let addTaskResult = await handleDB.submitTask(res, user_id, category_id, name, description, create_time)
         if (!addTaskResult.insertId) {
             res.send({
                 msg: '添加任务出错',
@@ -158,7 +160,7 @@ router.post('/api/addtask', (req, res) => {
         }
         // 向task_label添加task_id
         let task_id = addTaskResult.insertId
-        let tasklabelResult = await handleDB.addTaskLabel(res, task_id, label_id)
+        let tasklabelResult = await handleDB.addTaskLabel(res, task_id, label_id, create_time)
         if (!tasklabelResult.insertId) {
             res.send({
                 msg: '添加出错',
@@ -299,8 +301,9 @@ router.post('/api/addcategory', (req, res) => {
                 })
                 return
             }
+            let create_time = new Date().toLocaleString()
             // name不存在，则可以添加
-            let insertResult = await handleDB.addCategory(res, user_id, name)
+            let insertResult = await handleDB.addCategory(res, user_id, name, create_time)
             if (insertResult.insertId) {
                 res.send({
                     code: '200',
@@ -348,8 +351,9 @@ router.post('/api/addlabel', (req, res) => {
                 })
                 return
             }
+            let create_time = new Date().toLocaleString()
             // name不存在，则可以添加
-            let insertResult = await handleDB.addLabel(res, user_id, name)
+            let insertResult = await handleDB.addLabel(res, user_id, name, create_time)
             if (insertResult.insertId) {
                 res.send({
                     code: '200',
@@ -480,8 +484,9 @@ router.post('/api/editcategory', (req, res) => {
             })
             return
         } else {
+            let update_time = new Date().toLocaleString()
             // 不存在，可以修改
-            let updatecateResult = await handleDB.updateCategoryById(res, id, name)
+            let updatecateResult = await handleDB.updateCategoryById(res, id, name, update_time)
             if (updatecateResult.affectedRows > 0) {
                 // 成功
                 res.send({
@@ -517,8 +522,9 @@ router.post('/api/editlabel', (req, res) => {
             })
             return
         } else {
+            let update_time = new Date().toLocaleString()
             // 不存在，可以修改
-            let updatecateResult = await handleDB.updateLabelById(res, id, name)
+            let updatecateResult = await handleDB.updateLabelById(res, id, name, update_time)
             if (updatecateResult.affectedRows > 0) {
                 // 成功
                 res.send({
@@ -571,7 +577,8 @@ router.delete('/api/task', (req, res) => {
         let {
             id
         } = req.body
-        let deleteTaskResult = await handleDB.deleteTaskById(res, id)
+        let update_time = new Date().toLocaleString()
+        let deleteTaskResult = await handleDB.deleteTaskById(res, id, update_time)
         if (deleteTaskResult.affectedRows > 0) {
             // 成功
             res.send({
@@ -595,7 +602,8 @@ router.post('/api/edittask', (req, res) => {
             name,
             description
         } = req.body
-        let updatecateResult = await handleDB.updateTaskById(res, id, name, description)
+        let update_time = new Date().toLocaleString()
+        let updatecateResult = await handleDB.updateTaskById(res, id, name, description, update_time)
         if (updatecateResult.affectedRows > 0) {
             // 成功
             res.send({
