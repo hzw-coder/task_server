@@ -588,6 +588,148 @@ async function updateTaskById(res, id, name, description, update_time) {
     return result
 }
 
+// 待完成任务数量
+async function unCompleted(res) {
+    let result
+    try {
+        const sql = `select count(*) from task where run=1 `
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作失败'
+        })
+        return
+    }
+    return result
+}
+// 上周完成任务数量
+async function laskweekCompleted(res) {
+    let result
+    try {
+        const sql = `select count(*) from task where run=0 and
+         yearweek(date_format(update_time,'%y-%m-%d'))=yearweek(now())-1 `
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作失败'
+        })
+        return
+    }
+    return result
+}
+
+// 上月完成任务数量
+async function laskmonthCompleted(res) {
+    let result
+    try {
+        const sql = `select count(*) from task where run=0 and
+         month(from_unixtime(update,'%y-%m-%d'))=month(now()) `
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作失败'
+        })
+        return
+    }
+    return result
+}
+
+// 已完成任务数量
+async function completed(res) {
+    let result
+    try {
+        const sql = `select count(*) from task where run=0 `
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作失败'
+        })
+        return
+    }
+    return result
+}
+
+//统计最近7天内的数量按天分组
+async function calculaLatelyAweek(res) {
+    let result
+    try {
+        const sql = ``
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作失败'
+        })
+        return
+    }
+    return result
+}
+
+//统计当天完成的任务数量
+async function calculaToday(res) {
+    let result
+    try {
+        const sql = `select count(*) from task 
+        where to_days(update_time)=to_days(now()) 
+        and run=1 group by category_id`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作失败'
+        })
+        return
+    }
+    return result
+}
+
+
 module.exports = {
     login,
     queryUser,
@@ -612,5 +754,11 @@ module.exports = {
     queryTaskCount,
     deleteTaskById,
     queryTaskById,
-    updateTaskById
+    updateTaskById,
+    unCompleted,
+    completed,
+    laskweekCompleted,
+    laskmonthCompleted,
+    calculaLatelyAweek,
+    calculaToday
 }
