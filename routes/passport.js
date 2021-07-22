@@ -625,8 +625,42 @@ router.post('/api/edittask', (req, res) => {
 // 数量统计
 router.get('/api/data', (req, res) => {
     (async function () {
-        let result = await handleDB.calculaLatelyAweek(res)
-        res.send(result)
+        // 获取未完成
+        let unCompletedResult = await handleDB.unCompleted(res)
+        // 获取上周完成
+        let lastWeekResult = await handleDB.laskweekCompleted(res)
+        // 获取上月完成
+        let lastMonthResult = await handleDB.laskmonthCompleted(res)
+        // 获取已完成
+        let completedResult = await handleDB.completed(res)
+        // 获取最近7天
+        let latelyAweekResult = await handleDB.calculaLatelyAweek(res)
+        // 获取最近几周
+        let latelyMonthResult = await handleDB.calculaLatelyMonth(res)
+        if (!unCompletedResult.length ||
+            !lastWeekResult.length ||
+            !lastMonthResult.length ||
+            !completedResult.length ||
+            !latelyAweekResult.length ||
+            !latelyMonthResult.length) {
+            res.send({
+                code: '401',
+                msg: '获取数据失败'
+            })
+            return
+        }
+
+        res.send({
+            code: '200',
+            msg: '获取数据成功',
+            uncompletedcount: unCompletedResult[0].count,
+            lastweekcount: lastWeekResult[0].count,
+            lastmonthcount: lastMonthResult[0].count,
+            completedcount: completedResult[0].count,
+            latelyweekdata: latelyAweekResult,
+            latelymonthdata: latelyMonthResult,
+        })
+
     })()
 })
 

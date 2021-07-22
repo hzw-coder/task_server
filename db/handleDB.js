@@ -592,7 +592,7 @@ async function updateTaskById(res, id, name, description, update_time) {
 async function unCompleted(res) {
     let result
     try {
-        const sql = `select count(*) from task where run=1 `
+        const sql = `select count(*) as count from task where run=1 `
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
                 if (err) {
@@ -614,7 +614,7 @@ async function unCompleted(res) {
 async function laskweekCompleted(res) {
     let result
     try {
-        const sql = `select count(*) from task where run=0 and
+        const sql = `select count(*) as count from task where run=0 and
          yearweek(date_format(update_time,'%y-%m-%d'))=yearweek(now())-1 `
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
@@ -638,7 +638,7 @@ async function laskweekCompleted(res) {
 async function laskmonthCompleted(res) {
     let result
     try {
-        const sql = `select count(*) from task where run=0 and
+        const sql = `select count(*) as count from task where run=0 and
          month(from_unixtime(update_time,'%y-%m-%d'))=month(now()) `
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
@@ -662,7 +662,7 @@ async function laskmonthCompleted(res) {
 async function completed(res) {
     let result
     try {
-        const sql = `select count(*) from task where run=0 `
+        const sql = `select count(*) as count from task where run=0 `
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
                 if (err) {
@@ -730,10 +730,28 @@ async function calculaLatelyAweek(res) {
 async function calculaLatelyMonth(res) {
     let result
     try {
-        const sql = `select date_format(update_time,'%y-%m-%d') weeks,count(*) count
-                    from task where run=0 and
-                    update_time>date_sub(curdate(),interval 7 week)
-                    group by weeks`
+        const sql = `select date_format(a.click_date,'%y-%m-%d') as click_date,ifnull(b.count,0) as count
+        from (
+            SELECT curdate() as click_date
+            union all
+            SELECT date_sub(curdate(), interval 1 week) as click_date
+            union all
+            SELECT date_sub(curdate(), interval 2 week) as click_date
+            union all
+            SELECT date_sub(curdate(), interval 3 week) as click_date
+            union all
+            SELECT date_sub(curdate(), interval 4 week) as click_date
+            union all
+            SELECT date_sub(curdate(), interval 5 week) as click_date
+            union all
+            SELECT date_sub(curdate(), interval 6 week) as click_date) a
+            left join
+            (
+                select date_format(update_time,'%y-%m-%d') as datetime, count(*) as count
+                from task where run=0
+                group by date_format(update_time,'%y-%m-%d')
+            ) b on a.click_date = b.datetime
+            order by a.click_date asc`
         result = await new Promise((resolve, reject) => {
             db.query(sql, (err, data) => {
                 if (err) {
@@ -756,7 +774,7 @@ async function calculaLatelyMonth(res) {
 async function calculaToday(res) {
     let result
     try {
-        const sql = `select category_id,count(*) from task 
+        const sql = `select category_id,count(*) as count from task 
         where to_days(update_time)=to_days(now()) 
         and run=0 group by category_id`
         result = await new Promise((resolve, reject) => {
