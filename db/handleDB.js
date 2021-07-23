@@ -726,25 +726,25 @@ async function calculaLatelyAweek(res) {
     }
     return result
 }
-//统计最近几周内的数量按周分组
+//统计上周每天完成的数量
 async function calculaLatelyMonth(res) {
     let result
     try {
         const sql = `select date_format(a.click_date,'%y-%m-%d') as click_date,ifnull(b.count,0) as count
         from (
-            SELECT curdate() as click_date
+            SELECT date_sub(curdate(), interval 7 day) as click_date
             union all
-            SELECT date_sub(curdate(), interval 1 week) as click_date
+            SELECT date_sub(curdate(), interval 8 day) as click_date
             union all
-            SELECT date_sub(curdate(), interval 2 week) as click_date
+            SELECT date_sub(curdate(), interval 9 day) as click_date
             union all
-            SELECT date_sub(curdate(), interval 3 week) as click_date
+            SELECT date_sub(curdate(), interval 10 day) as click_date
             union all
-            SELECT date_sub(curdate(), interval 4 week) as click_date
+            SELECT date_sub(curdate(), interval 11 day) as click_date
             union all
-            SELECT date_sub(curdate(), interval 5 week) as click_date
+            SELECT date_sub(curdate(), interval 12 day) as click_date
             union all
-            SELECT date_sub(curdate(), interval 6 week) as click_date) a
+            SELECT date_sub(curdate(), interval 13 day) as click_date) a
             left join
             (
                 select date_format(update_time,'%y-%m-%d') as datetime, count(*) as count
@@ -770,30 +770,6 @@ async function calculaLatelyMonth(res) {
     return result
 }
 
-//统计当天完成的任务数量
-async function calculaToday(res) {
-    let result
-    try {
-        const sql = `select category_id,count(*) as count from task 
-        where to_days(update_time)=to_days(now()) 
-        and run=0 group by category_id`
-        result = await new Promise((resolve, reject) => {
-            db.query(sql, (err, data) => {
-                if (err) {
-                    reject(err)
-                }
-                resolve(data)
-            })
-        })
-    } catch (error) {
-        console.log(error);
-        res.send({
-            msg: '操作失败'
-        })
-        return
-    }
-    return result
-}
 
 
 module.exports = {
@@ -826,6 +802,5 @@ module.exports = {
     laskweekCompleted,
     laskmonthCompleted,
     calculaLatelyAweek,
-    calculaLatelyMonth,
-    calculaToday
+    calculaLatelyMonth
 }
