@@ -769,7 +769,51 @@ async function calculaLatelyMonth(res) {
     }
     return result
 }
+// 根据id查询用户信息
+async function queryUserById(res, id) {
+    let result
+    try {
+        const sql = `select * from user where id='${id}'`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作失败'
+        })
+        return
+    }
+    return result
+}
 
+// 修改密码 
+async function updatePassword(res, id, new_password) {
+    let result
+    try {
+        const sql = `update user set password='${new_password}' where id='${id}'`
+        result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, data) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(data)
+            })
+        })
+    } catch (error) {
+        console.log(error);
+        res.send({
+            msg: '操作失败'
+        })
+        return
+    }
+    return result
+}
 
 
 module.exports = {
@@ -802,5 +846,7 @@ module.exports = {
     laskweekCompleted,
     laskmonthCompleted,
     calculaLatelyAweek,
-    calculaLatelyMonth
+    calculaLatelyMonth,
+    queryUserById,
+    updatePassword
 }

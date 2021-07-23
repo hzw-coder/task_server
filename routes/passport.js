@@ -664,6 +664,56 @@ router.get('/api/data', (req, res) => {
     })()
 })
 
+// 修改密码
+router.post('/api/password', (req, res) => {
+    (async function () {
+        let {
+            old_password,
+            new_password,
+            new_password2
+        } = req.body
+        // 当前用户登录id
+        let user_id = req.session['user_id']
+        // 根据id查询用户密码
+        let passwordRusult = await handleDB.queryUserById(res, user_id)
+        if (!old_password || !new_password || !new_password2) {
+            res.send({
+                msg: "密码不能为空",
+                code: '401'
+            })
+            return
+        }
+        if (new_password !== new_password2) {
+            res.send({
+                msg: '两次密码不一致',
+                code: '401'
+            })
+            return
+        }
+        if (md5(md5(old_password) + keys.password_key) !== passwordRusult[0].password) {
+            res.send({
+                msg: '旧密码错误',
+                code: '401'
+            })
+            return
+        }
+        // update
+        let updatecateResult = await handleDB.updatePassword(res, user_id, md5(md5(new_password) + keys.password_key))
+        if (updatecateResult.affectedRows < 0) {
+            // 失败
+            res.send({
+                code: '402',
+                msg: '修改失败'
+            })
+            return
+        }
+        res.send({
+            code: '200',
+            msg: '密码修改成功'
+        })
+    })()
+})
+
 // 生成token
 // router.get('/passport/token', (req, res) => {
 //     // 生成token
