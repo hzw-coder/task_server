@@ -2,6 +2,7 @@ const express = require('express')
 const cookieParse = require('cookie-parser')
 const session = require('express-session')
 const keys = require('./keys.js')
+const jwt = require('jsonwebtoken')
 
 const passportRouter = require('./routes/passport.js')
 let appConfig = app => {
@@ -15,7 +16,25 @@ let appConfig = app => {
         res.header('Access-Control-Allow-Credentials', 'true'); // 允许客户端携带证书式访问。保持跨域请求中的Cookie。注意：此处设true时，Access-Control-Allow-Origin的值不能为 '*'
         next()
     })
-
+    // 后端拦截
+    app.use((req, res, next) => {
+        if (req.path !== '/api/login' || req.path !== '/api/login/img_captcha') {
+            let token = req.headers.Authorization
+            jwt.verufy(token, keys.jwt_salt, (err, decode) => {
+                console.log(decode);
+                if (err) {
+                    res.send({
+                        code: '406',
+                        msg: 'token过期，请重新登录'
+                    })
+                } else {
+                    next()
+                }
+            })
+        } else {
+            next()
+        }
+    })
 
 
     // session配置
@@ -26,7 +45,7 @@ let appConfig = app => {
         saveUninitialized: false,
         cookie: {
             //secure: true,
-            maxAge: 1000*60*3
+            maxAge: 1000 * 60 * 3
         }
     }))
     //app.use(cookieParse())
