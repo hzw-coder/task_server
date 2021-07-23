@@ -18,9 +18,16 @@ let appConfig = app => {
     })
     // 后端拦截
     app.use((req, res, next) => {
-        if (req.path !== '/api/login' || req.path !== '/api/login/img_captcha') {
-            let token = req.headers.Authorization
-            jwt.verufy(token, keys.jwt_salt, (err, decode) => {
+        let authorization = req.get('Authorization')
+        if (req.path == '/api/login/img_captcha') {
+            // 放行验证码接口
+            next()
+        } else if (req.path == '/api/login') {
+            // 放行登录接口
+            next()
+        } else {
+            console.log(authorization);
+            jwt.verify(authorization, keys.jwt_salt, (err, decode) => {
                 console.log(decode);
                 if (err) {
                     res.send({
@@ -31,8 +38,6 @@ let appConfig = app => {
                     next()
                 }
             })
-        } else {
-            next()
         }
     })
 
